@@ -10,10 +10,8 @@ import { map } from 'rxjs/operators';
 @Injectable()
 export class CacheInterceptor implements NestInterceptor {
   intercept(context: ExecutionContext, next: CallHandler): Observable<any> {
-    console.log('intercept');
-    const isCached = false;
-    if (isCached) {
-      return of([]);
+    if (process.env.ENABLE_CACHE) {
+      return of('开启了缓存给你数据');
     }
     return next.handle();
   }

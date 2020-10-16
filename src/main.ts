@@ -1,3 +1,4 @@
+import './envConfig';
 import { LoggerMiddleware } from './middleware/logger.middleware';
 import { ValidationPipe } from './pipe/validate.pipe';
 import { Request, Response } from 'express';
