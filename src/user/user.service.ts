@@ -1,7 +1,8 @@
 import { Injectable } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
-import { InsertResult, Repository } from 'typeorm';
-import { User } from './user.entity';
+import { use } from 'passport';
+import { FindOneOptions, InsertResult, ObjectID, Repository } from 'typeorm';
+import { User } from './entity/user.entity';
 import { User as UserClass } from './interfaces/user.interface';
 
 @Injectable()
@@ -20,8 +21,18 @@ export class UserService {
     return this.usersRepository.find();
   }
 
-  findOne(id: string): Promise<User> {
-    return this.usersRepository.findOne(id);
+  findOneByUserName(firstName: string, password: string): Promise<User> {
+    return this.usersRepository.findOne({
+      firstName: firstName,
+      password: password,
+    });
+  }
+
+  findOne(
+    id?: string | number | Date | ObjectID,
+    options?: FindOneOptions<User>,
+  ): Promise<User> {
+    return this.usersRepository.findOne(id, options);
   }
 
   async remove(id: string): Promise<void> {

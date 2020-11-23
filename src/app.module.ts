@@ -1,13 +1,28 @@
 import { LoggerMiddleware } from './middleware/logger.middleware';
 import { CatsModule } from './cats/cats.module';
-import { Module, NestModule, MiddlewareConsumer } from '@nestjs/common';
+import * as redisStore from 'cache-manager-redis-store';
+import {
+  Module,
+  NestModule,
+  MiddlewareConsumer,
+  CacheModule,
+  CacheInterceptor,
+} from '@nestjs/common';
 import { AppController } from './app.controller';
 import { AppService } from './app.service';
 import { TypeOrmModule } from '@nestjs/typeorm';
 import { Connection } from 'typeorm';
 import { UserModule } from './user/user.module';
 import { PhotoModule } from './photo/photo.module';
-console.log(process.env.TYPEORM_HOST);
+import { AuthModule } from './auth/auth.module';
+import { APP_INTERCEPTOR } from '@nestjs/core';
+import { ScheduleModule } from '@nestjs/schedule';
+import { TaskModule } from './task/task.module';
+import { BullModule } from '@nestjs/bull';
+import { AudioModule } from './audio/audio.module';
+import { TopService } from './top/top.service';
+import { Top } from './top';
+
 @Module({
   imports: [
     CatsModule,
@@ -24,9 +39,23 @@ console.log(process.env.TYPEORM_HOST);
     }),
     UserModule,
     PhotoModule,
+    AuthModule,
+    CacheModule.register({ store: redisStore, host: 'localhost', port: 6379 }),
+    ScheduleModule.forRoot(),
+    TaskModule,
+
+    AudioModule,
   ],
   controllers: [AppController],
-  providers: [AppService],
+  providers: [
+    AppService,
+    {
+      provide: APP_INTERCEPTOR,
+      useClass: CacheInterceptor,
+    },
+    TopService,
+    Top,
+  ],
 })
 export class AppModule implements NestModule {
   constructor(private connection: Connection) {}
